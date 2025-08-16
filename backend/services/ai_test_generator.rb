@@ -1,15 +1,26 @@
-require 'rest-client'
+# backend/services/ai_test_generator.rb
+require 'net/http'
 require 'json'
 
-class AITestGenerator
-  OPENAI_API_KEY = ENV['OPENAI_API_KEY']
+class AiTestGenerator
+  API_URL = "https://api.openai.com/v1/chat/completions"
+  API_KEY = ENV['OPENAI_API_KEY']
 
-  def self.generate_tests(url)
-    prompt = "Generate automated QA test cases for this website: #{url}"
-    response = RestClient.post "https://api.openai.com/v1/completions",
-      { model: "text-davinci-003", prompt: prompt, max_tokens: 300 }.to_json,
-      { Authorization: "Bearer #{OPENAI_API_KEY}", content_type: :json, accept: :json }
-    
-    JSON.parse(response.body)["choices"][0]["text"]
+  def self.generate_test_cases(description)
+    uri = URI(API_URL)
+    req = Net::HTTP::Post.new(uri, {
+      "Content-Type" => "application/json",
+      "Authorization" => "Bearer #{API_KEY}"
+    })
+    req.body = {
+      model: "gpt-4",
+      messages: [
+        { role: "system", content: "You are a QA test case generator." },
+        { role: "user", content: "Generate JavaScript unit tests for: #{description}" }
+      ]
+    }.to_json
+
+    res = Net::HTTP.start(uri.hostname, uri.port, use_ssl: true) { |http| http.request(req) }
+    JSON.parse(res.body)["choices"][0]["message"]["content"]
   end
 end
