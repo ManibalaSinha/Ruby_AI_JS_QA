@@ -1,4 +1,4 @@
-require 'sinatra'
+#require 'sinatra'
 require 'sinatra/json'
 require 'sequel'
 require 'sinatra/activerecord'
@@ -23,6 +23,11 @@ end
 
 results = DB[:test_results]
 
+# Always return JSON
+before do
+  content_type :json
+end
+
 get '/' do
   "AI Web QA Backend Running"
 end
@@ -33,17 +38,21 @@ get '/results' do
   json results.all
 end
 
-post '/results' do
-  halt 415, json(error: 'Use application/json') unless request.media_type == 'application/json'
-  payload = JSON.parse(request.body.read) rescue nil
-  halt 400, json(error: 'Invalid JSON') unless payload
+# Example route with validation
+post "/results" do
+  data = JSON.parse(request.body.read) rescue nil
+  halt 400, { error: "Invalid JSON" }.to_json unless data
+  halt 422, { error: "Missing test_name" }.to_json unless data["test_name"]
 
-  name   = payload['test_name']&.strip
-  status = payload['status']&.strip
-  halt 422, json(error: 'test_name and status are required') if name.to_s.empty? || status.to_s.empty?
+  id = DB[:test_results].insert(data)
+  { id: id }.to_json
+end
 
-  id = RESULTS.insert(test_name: name, status: status)
-  json message: 'Result saved!', id: id
+# Global error handler
+error do
+  e = env['sinatra.error']
+  status 500
+  { error: "Internal Server Error", message: e.message }.to_json
 end
 
 # Run Sinatra app only if this file is executed directly
