@@ -1,13 +1,15 @@
 require 'active_record'
 require 'sqlite3'
 
-# Connect to SQLite database
-db_path = File.expand_path('../../db/development.sqlite3', __FILE__)
-Dir.mkdir(File.expand_path('../../db', __FILE__)) unless Dir.exist?(File.expand_path('../../db', __FILE__))
-File.write(db_path, '') unless File.exist?(db_path)
+module Database
+  def self.config
+    {
+      adapter:  'sqlite3',
+      database: File.expand_path('../db/development.sqlite3', __dir__)
+    }
+  end
 
-ActiveRecord::Base.establish_connection(
-  adapter:  'sqlite3',
-  database: db_path
-)
-
+  def self.connect
+    ActiveRecord::Base.establish_connection(config)
+  end
+end

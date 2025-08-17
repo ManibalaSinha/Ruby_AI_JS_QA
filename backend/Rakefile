@@ -1,0 +1,42 @@
+# backend/Rakefile
+require 'active_record'
+require 'fileutils'
+require 'rake'
+require 'yaml'
+require 'logger'
+require_relative './config/database'
+
+namespace :db do
+  desc "Create the database file if it doesn't exist"
+  task :create do
+    Database.connect
+    db_path = Database.config[:database]
+    FileUtils.mkdir_p(File.dirname(db_path))
+    FileUtils.touch(db_path) unless File.exist?(db_path)
+    puts "Database created at #{db_path}"
+  end
+
+  desc "Run all pending migrations"
+  task :migrate do
+    Database.connect
+
+    # Load all migration files
+
+    migrations_path = File.expand_path('./db/migrate', __dir__)
+    Dir["./db/migrate/*.rb"].sort.each { |f| require f }
+    ActiveRecord::MigrationContext.new(migrations_path).migrate
+    puts "Migrations applied"
+  end
+
+  desc "Rollback the last migration"
+  task :rollback do
+    Database.connect
+
+    # Load all migration files
+    Dir[File.expand_path('./db/migrate/*.rb', __dir__)].sort.each { |file| require file }
+
+    migrations_path = File.expand_path('./db/migrate', __dir__)
+    ActiveRecord::MigrationContext.new(migrations_path, ActiveRecord::SchemaMigration).rollback
+    puts "Rolled back last migration"
+  end
+end
