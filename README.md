@@ -1,4 +1,4 @@
-﻿# Ruby_AI_JS_QA
+﻿# Ruby_AI_JS_QA  Live: https://manibalasinha.github.io/Ruby_AI_JS_QA/
 
 Ruby_AI_JS_QA is a full-stack application designed to facilitate question-answering (QA) workflows using AI models. The project integrates Ruby on Rails for the backend, JavaScript for the frontend, and leverages AI services to process and respond to user queries.
 
@@ -100,4 +100,5 @@ AI service providers for powering the question-answering capabilities.
 LambdaTest
 
 For more detailed information, please refer to the GitHub repository.
+
 
