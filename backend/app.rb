@@ -1,4 +1,4 @@
-#require 'sinatra'
+require 'sinatra'
 require 'sinatra/json'
 require 'sequel'
 require 'sinatra/activerecord'
@@ -7,7 +7,7 @@ require './services/ai_test_generator'
 require './routes/api'
 
 # app setting
-set :port, 4567
+set :port, 3000
 set :bind, '0.0.0.0'
 
 # database (Sequel +SQLite)
